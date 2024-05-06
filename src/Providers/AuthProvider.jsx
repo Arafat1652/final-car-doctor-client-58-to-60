@@ -1,6 +1,7 @@
 import { createUserWithEmailAndPassword, onAuthStateChanged, signInWithEmailAndPassword, signOut } from "firebase/auth";
 import { createContext, useEffect, useState } from "react";
 import auth from "../firebase/firebase.config";
+import axios from "axios";
 
 export const AuthContext = createContext()
 
@@ -27,9 +28,23 @@ const AuthProvider = ({children}) => {
      useEffect(()=>{
 
         const unSubscribe = onAuthStateChanged(auth , currentUser => {
+            const userEmail = currentUser?.email || user?.email
+            const loggedUser = {email: userEmail}
             setUser(currentUser)
             setLoading(false)
             console.log('current user',currentUser);
+            if(currentUser){
+               axios.post('https://car-doctor-server-58-59-60.vercel.app/jwt', loggedUser, {withCredentials: true})
+               .then(res => {
+                  console.log('token response authP',res.data);
+               })
+            }
+            else{
+               axios.post('https://car-doctor-server-58-59-60.vercel.app/logout',loggedUser,{withCredentials:true})
+               .then(res => {
+                  console.log('token response',res.data);
+               })
+            }
             })
 
             return () => {
@@ -37,7 +52,7 @@ const AuthProvider = ({children}) => {
             }
          
 
-     }, [])
+     }, [user?.email])
      
 
      const authInfo = {user, loading, createUser, signIn, logOut}

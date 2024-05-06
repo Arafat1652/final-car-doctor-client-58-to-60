@@ -1,35 +1,34 @@
 import { useContext, useEffect, useState } from "react";
 import { AuthContext } from "../../Providers/AuthProvider";
 import Booking from "./Booking";
-import axios from "axios";
+import UseAxiosSecure from "../../Hooks/UseAxiosSecure";
 
 const Bookings = () => {
   const { user } = useContext(AuthContext);
   const [bookings, setBookings] = useState([]);
-  const url = `http://localhost:5000/bookings?email=${user?.email}`;
+  const axiosSecure = UseAxiosSecure()
+  const url = `/bookings?email=${user?.email}`
 
   useEffect(() => {
 
-   axios.get(url, {withCredentials: true})
-   .then(res => {
-    // console.log(res.data);
-    setBookings(res.data)
-   })
+      axiosSecure.get(url)
+      .then(res => setBookings(res.data))
 
-    // fetch(url)
+  
+    // fetch(url, {credentials: "include"})
     //   .then((res) => res.json())
     //   .then((data) => {
     //     // console.log(data);
     //     setBookings(data);
     //   });
-  }, [url]);
+  }, [url, axiosSecure]);
   // console.log(bookings);
   const handleDelete = id =>{
     
     const procced = confirm('are you sure you want to delete')
 
     if(procced){
-        fetch(`http://localhost:5000/bookings/${id}`,{
+        fetch(`https://car-doctor-server-58-59-60.vercel.app/bookings/${id}`,{
         method: 'DELETE'
     })
     .then(res=>res.json())
@@ -47,7 +46,7 @@ const Bookings = () => {
 }
 
     const handleBookingUpdate = id =>{
-        fetch(`http://localhost:5000/bookings/${id}`,{
+        fetch(`https://car-doctor-server-58-59-60.vercel.app/bookings/${id}`,{
         method: 'PATCH',
         headers:{
             'content-type': 'application/json'
